@@ -6,178 +6,71 @@
 <title>Motor Racing 3D</title>
 
 <style>
-* {
-  box-sizing: border-box;
-  user-select: none;
+*{
+  box-sizing:border-box;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:none;
 }
 
-body {
-  margin: 0;
-  overflow: hidden;
-  background: #87ceeb;
-  font-family: Arial, sans-serif;
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:Arial,sans-serif;
+  background:#70c9e8;
 }
 
-#game {
-  width: 100vw;
-  height: 100vh;
+#game{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+  background:linear-gradient(#70c9e8 0%,#a9e1ef 48%,#23852c 49%,#176c22 100%);
 }
 
-#speed {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  color: white;
-  font-size: 24px;
-  font-weight: bold;
-  text-shadow: 2px 2px 4px black;
-  z-index: 10;
+/* SUN */
+#sun{
+  position:absolute;
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:#fff3a0;
+  top:8%;
+  right:10%;
+  box-shadow:0 0 35px #fff3a0;
 }
 
-.controls {
-  position: fixed;
-  bottom: 25px;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 25px;
-  z-index: 20;
+/* MOUNTAINS */
+.mountain{
+  position:absolute;
+  bottom:45%;
+  width:0;
+  height:0;
+  border-left:110px solid transparent;
+  border-right:110px solid transparent;
+  border-bottom:140px solid #527c80;
 }
 
-button {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 3px solid white;
-  background: rgba(0,0,0,0.45);
-  color: white;
-  font-size: 32px;
-  font-weight: bold;
+.m1{left:5%}
+.m2{left:28%;transform:scale(1.4)}
+.m3{right:8%;transform:scale(1.2)}
+
+/* ROAD */
+#road{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  width:100%;
+  height:55%;
+  background:#292929;
+  clip-path:polygon(45% 0,55% 0,100% 100%,0 100%);
+  overflow:hidden;
 }
 
-#gas {
-  background: rgba(0,150,0,0.65);
-}
-</style>
-</head>
-
-<body>
-
-<div id="game"></div>
-<div id="speed">SPEED: 0</div>
-
-<div class="controls">
-  <div>
-    <button id="left">◀</button>
-    <button id="right">▶</button>
-  </div>
-
-  <button id="gas">▲</button>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-
-<script>
-
-const scene = new THREE.Scene();
-
-scene.background = new THREE.Color(0x87ceeb);
-
-const camera = new THREE.PerspectiveCamera(
-  70,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
-
-const renderer = new THREE.WebGLRenderer({
-  antialias: true
-});
-
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true;
-
-document.getElementById("game").appendChild(renderer.domElement);
-
-
-// LIGHT
-const light = new THREE.DirectionalLight(0xffffff, 2);
-light.position.set(5,10,5);
-scene.add(light);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-
-
-// ROAD
-const roadGeometry = new THREE.PlaneGeometry(12, 1000);
-const roadMaterial = new THREE.MeshStandardMaterial({
-  color: 0x333333
-});
-
-const road = new THREE.Mesh(
-  roadGeometry,
-  roadMaterial
-);
-
-road.rotation.x = -Math.PI / 2;
-road.position.y = 0;
-scene.add(road);
-
-
-// GRASS
-const grassGeometry = new THREE.PlaneGeometry(100, 1000);
-const grassMaterial = new THREE.MeshStandardMaterial({
-  color: 0x228B22
-});
-
-const grass = new THREE.Mesh(
-  grassGeometry,
-  grassMaterial
-);
-
-grass.rotation.x = -Math.PI / 2;
-grass.position.y = -0.02;
-scene.add(grass);
-
-
-// ROAD LINES
-for(let z = -500; z < 500; z += 10){
-
-  const lineGeometry = new THREE.BoxGeometry(0.25,0.02,5);
-
-  const lineMaterial = new THREE.MeshBasicMaterial({
-    color: 0xffffff
-  });
-
-  const line = new THREE.Mesh(
-    lineGeometry,
-    lineMaterial
-  );
-
-  line.position.set(0,0.03,z);
-
-  scene.add(line);
-}
-
-
-// MOTORCYCLE
-const bike = new THREE.Group();
-
-
-// BODY
-const bodyGeometry = new THREE.BoxGeometry(1,0.5,2);
-
-const bodyMaterial = new THREE.MeshStandardMaterial({
-  color: 0xff0000
-});
-
-const body = new THREE.Mesh(
-  bodyGeometry,
-  bodyMaterial
-);
-
-body.position.y = 0.7;
-
+/* ROAD ED
 bike.add(body);
 
 
