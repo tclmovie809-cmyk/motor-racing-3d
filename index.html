@@ -1,113 +1,771 @@
-    geometry,<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Motor Racing 3D</title>
+function drawBike(){
 
-<style>
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-  -webkit-tap-highlight-color:transparent;
-}
+  const x = playerX;
+  const y = H * 0.78;
+  const s = Math.min(W,H) / 500;
 
-body{
-  overflow:hidden;
-  background:#07111f;
-  font-family:Arial,sans-serif;
-  touch-action:none;
-  user-select:none;
-}
+  /* =========================
+     SHADOW
+  ========================= */
 
-#game{
-  position:fixed;
-  inset:0;
-  width:100%;
-  height:100%;
-}
+  ctx.fillStyle="rgba(0,0,0,.42)";
 
-#hud{
-  position:fixed;
-  top:12px;
-  left:12px;
-  right:12px;
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  color:white;
-  z-index:5;
-  pointer-events:none;
-}
+  ctx.beginPath();
+  ctx.ellipse(
+    x,
+    y+48*s,
+    52*s,
+    12*s,
+    0,
+    0,
+    Math.PI*2
+  );
+  ctx.fill();
 
-.panel{
-  background:rgba(0,0,0,.55);
-  border:2px solid rgba(255,255,255,.25);
-  border-radius:14px;
-  padding:9px 13px;
-  backdrop-filter:blur(5px);
-  text-shadow:0 2px 3px #000;
-}
 
-#speed{
-  font-size:25px;
-  font-weight:bold;
-}
+  /* =========================
+     REAR WHEEL
+  ========================= */
 
-#score{
-  font-size:20px;
-  font-weight:bold;
-}
+  ctx.fillStyle="#08090b";
 
-#best{
-  font-size:13px;
-  margin-top:3px;
-  opacity:.85;
-}
+  ctx.beginPath();
+  ctx.ellipse(
+    x,
+    y+29*s,
+    14*s,
+    30*s,
+    0,
+    0,
+    Math.PI*2
+  );
+  ctx.fill();
 
-#message{
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  z-index:10;
-  text-align:center;
-  color:white;
-  background:rgba(0,0,0,.78);
-  border:3px solid #fff;
-  border-radius:20px;
-  padding:25px;
-  width:min(90%,380px);
-  display:none;
-}
+  ctx.strokeStyle="#70757b";
+  ctx.lineWidth=3*s;
 
-#message h1{
-  font-size:38px;
-  margin-bottom:10px;
-}
+  ctx.beginPath();
+  ctx.ellipse(
+    x,
+    y+29*s,
+    7*s,
+    22*s,
+    0,
+    0,
+    Math.PI*2
+  );
+  ctx.stroke();
 
-#message p{
-  font-size:19px;
-  margin-bottom:18px;
-}
 
-#restart{
-  border:0;
-  border-radius:13px;
-  padding:13px 25px;
-  font-size:18px;
-  font-weight:bold;
-  background:#ff1744;
-  color:white;
-}
+  /* =========================
+     FRONT WHEEL
+  ========================= */
 
-.controls{
-  position:fixed;
-  bottom:22px;
-  left:0;
-  right:0;
-  display:flex;
+  ctx.fillStyle="#08090b";
+
+  ctx.beginPath();
+  ctx.ellipse(
+    x,
+    y-38*s,
+    12*s,
+    26*s,
+    0,
+    0,
+    Math.PI*2
+  );
+  ctx.fill();
+
+  ctx.strokeStyle="#70757b";
+  ctx.lineWidth=3*s;
+
+  ctx.beginPath();
+  ctx.ellipse(
+    x,
+    y-38*s,
+    6*s,
+    19*s,
+    0,
+    0,
+    Math.PI*2
+  );
+  ctx.stroke();
+
+
+  /* =========================
+     FRONT FORK
+  ========================= */
+
+  ctx.strokeStyle="#b8bdc2";
+  ctx.lineWidth=5*s;
+
+  ctx.beginPath();
+  ctx.moveTo(
+    x,
+    y-32*s
+  );
+  ctx.lineTo(
+    x,
+    y-58*s
+  );
+  ctx.stroke();
+
+
+  /* =========================
+     MOTOR BODY GRADIENT
+  ========================= */
+
+  const bodyGradient =
+    ctx.createLinearGradient(
+      x-25*s,
+      y-30*s,
+      x+25*s,
+      y+20*s
+    );
+
+  bodyGradient.addColorStop(
+    0,
+    "#ff3155"
+  );
+
+  bodyGradient.addColorStop(
+    .5,
+    "#e60035"
+  );
+
+  bodyGradient.addColorStop(
+    1,
+    "#8b001e"
+  );
+
+  ctx.fillStyle=bodyGradient;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x,
+    y-58*s
+  );
+
+  ctx.lineTo(
+    x+21*s,
+    y-34*s
+  );
+
+  ctx.lineTo(
+    x+25*s,
+    y+14*s
+  );
+
+  ctx.lineTo(
+    x+10*s,
+    y+23*s
+  );
+
+  ctx.lineTo(
+    x-13*s,
+    y+18*s
+  );
+
+  ctx.lineTo(
+    x-24*s,
+    y-28*s
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+
+  /* =========================
+     SIDE FAIRING
+  ========================= */
+
+  ctx.fillStyle="#ff1744";
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x-19*s,
+    y-20*s
+  );
+
+  ctx.lineTo(
+    x-7*s,
+    y-47*s
+  );
+
+  ctx.lineTo(
+    x+11*s,
+    y-38*s
+  );
+
+  ctx.lineTo(
+    x+16*s,
+    y-4*s
+  );
+
+  ctx.lineTo(
+    x-7*s,
+    y+7*s
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+
+  /* HIGHLIGHT */
+
+  ctx.strokeStyle="rgba(255,255,255,.65)";
+  ctx.lineWidth=2*s;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x-11*s,
+    y-38*s
+  );
+
+  ctx.lineTo(
+    x+7*s,
+    y-31*s
+  );
+
+  ctx.stroke();
+
+
+  /* =========================
+     SEAT
+  ========================= */
+
+  ctx.fillStyle="#101114";
+
+  ctx.beginPath();
+
+  ctx.roundRect(
+    x-15*s,
+    y-3*s,
+    31*s,
+    12*s,
+    5*s
+  );
+
+  ctx.fill();
+
+
+  /* =========================
+     PASSENGER - GIRL
+     DRAW FIRST SO SHE IS
+     BEHIND THE DRIVER
+  ========================= */
+
+  /* GIRL BODY */
+
+  ctx.fillStyle="#7b2cbf";
+
+  ctx.beginPath();
+
+  ctx.roundRect(
+    x-13*s,
+    y-73*s,
+    26*s,
+    34*s,
+    7*s
+  );
+
+  ctx.fill();
+
+
+  /* GIRL JACKET HIGHLIGHT */
+
+  ctx.strokeStyle="#b56bea";
+  ctx.lineWidth=2*s;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x-8*s,
+    y-67*s
+  );
+
+  ctx.lineTo(
+    x-8*s,
+    y-45*s
+  );
+
+  ctx.stroke();
+
+
+  /* GIRL HEAD */
+
+  ctx.fillStyle="#d49a72";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    x,
+    y-84*s,
+    11*s,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  /* SHORT HAIR */
+
+  ctx.fillStyle="#241619";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    x,
+    y-88*s,
+    12*s,
+    Math.PI,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /* LEFT SHORT HAIR */
+
+  ctx.fillRect(
+    x-12*s,
+    y-89*s,
+    5*s,
+    13*s
+  );
+
+  /* RIGHT SHORT HAIR */
+
+  ctx.fillRect(
+    x+7*s,
+    y-89*s,
+    5*s,
+    13*s
+  );
+
+
+  /* SMALL FACE DETAIL */
+
+  ctx.fillStyle="#111";
+
+  ctx.beginPath();
+  ctx.arc(
+    x-4*s,
+    y-85*s,
+    1.2*s,
+    0,
+    Math.PI*2
+  );
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(
+    x+4*s,
+    y-85*s,
+    1.2*s,
+    0,
+    Math.PI*2
+  );
+  ctx.fill();
+
+
+  /* GIRL ARMS AROUND DRIVER */
+
+  ctx.strokeStyle="#d49a72";
+  ctx.lineWidth=4*s;
+  ctx.lineCap="round";
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x-9*s,
+    y-65*s
+  );
+
+  ctx.lineTo(
+    x-15*s,
+    y-48*s
+  );
+
+  ctx.lineTo(
+    x-10*s,
+    y-40*s
+  );
+
+  ctx.stroke();
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x+9*s,
+    y-65*s
+  );
+
+  ctx.lineTo(
+    x+15*s,
+    y-48*s
+  );
+
+  ctx.lineTo(
+    x+10*s,
+    y-40*s
+  );
+
+  ctx.stroke();
+
+
+  /* =========================
+     DRIVER - MAN
+  ========================= */
+
+  /* DRIVER BODY */
+
+  const jacket =
+    ctx.createLinearGradient(
+      x-13*s,
+      y-65*s,
+      x+13*s,
+      y-25*s
+    );
+
+  jacket.addColorStop(
+    0,
+    "#263746"
+  );
+
+  jacket.addColorStop(
+    1,
+    "#101820"
+  );
+
+  ctx.fillStyle=jacket;
+
+  ctx.beginPath();
+
+  ctx.roundRect(
+    x-13*s,
+    y-58*s,
+    26*s,
+    36*s,
+    6*s
+  );
+
+  ctx.fill();
+
+
+  /* DRIVER SHOULDERS */
+
+  ctx.fillStyle="#30495b";
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    x,
+    y-57*s,
+    16*s,
+    9*s,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  /* DRIVER HEAD */
+
+  ctx.fillStyle="#c98c65";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    x,
+    y-69*s,
+    11*s,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  /* DRIVER HAIR */
+
+  ctx.fillStyle="#151515";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    x,
+    y-74*s,
+    11*s,
+    Math.PI,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  /* HAIR SIDE */
+
+  ctx.fillRect(
+    x-11*s,
+    y-75*s,
+    4*s,
+    9*s
+  );
+
+
+  /* DRIVER ARMS */
+
+  ctx.strokeStyle="#c98c65";
+  ctx.lineWidth=5*s;
+  ctx.lineCap="round";
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x-9*s,
+    y-51*s
+  );
+
+  ctx.lineTo(
+    x-20*s,
+    y-38*s
+  );
+
+  ctx.stroke();
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x+9*s,
+    y-51*s
+  );
+
+  ctx.lineTo(
+    x+20*s,
+    y-38*s
+  );
+
+  ctx.stroke();
+
+
+  /* =========================
+     HANDLEBAR
+  ========================= */
+
+  ctx.strokeStyle="#17191b";
+  ctx.lineWidth=4*s;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x-22*s,
+    y-39*s
+  );
+
+  ctx.lineTo(
+    x+22*s,
+    y-39*s
+  );
+
+  ctx.stroke();
+
+
+  /* MIRRORS */
+
+  ctx.fillStyle="#111";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    x-23*s,
+    y-44*s,
+    4*s,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.beginPath();
+
+  ctx.arc(
+    x+23*s,
+    y-44*s,
+    4*s,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  /* =========================
+     HEADLIGHT
+  ========================= */
+
+  const light =
+    ctx.createRadialGradient(
+      x,
+      y-49*s,
+      1*s,
+      x,
+      y-49*s,
+      13*s
+    );
+
+  light.addColorStop(
+    0,
+    "#ffffff"
+  );
+
+  light.addColorStop(
+    .4,
+    "#fff59d"
+  );
+
+  light.addColorStop(
+    1,
+    "rgba(255,245,150,0)"
+  );
+
+  ctx.fillStyle=light;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    x,
+    y-49*s,
+    13*s,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  /* ACTUAL HEADLIGHT */
+
+  ctx.fillStyle="#fffde7";
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    x,
+    y-49*s,
+    6*s,
+    4*s,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  /* =========================
+     EXHAUST
+  ========================= */
+
+  ctx.strokeStyle="#aeb4b9";
+  ctx.lineWidth=5*s;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x+14*s,
+    y+10*s
+  );
+
+  ctx.lineTo(
+    x+30*s,
+    y+27*s
+  );
+
+  ctx.stroke();
+
+
+  /* =========================
+     BRAKE LIGHT
+  ========================= */
+
+  ctx.fillStyle="#ff0038";
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    x,
+    y+17*s,
+    5*s,
+    3*s,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  /* =========================
+     BOOST
+  ========================= */
+
+  if(boost && speed>30){
+
+    ctx.fillStyle="#ff6d00";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      x-10*s,
+      y+43*s
+    );
+
+    ctx.lineTo(
+      x,
+      y+82*s
+    );
+
+    ctx.lineTo(
+      x+10*s,
+      y+43*s
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    ctx.fillStyle="#fff176";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      x-4*s,
+      y+44*s
+    );
+
+    ctx.lineTo(
+      x,
+      y+70*s
+    );
+
+    ctx.lineTo(
+      x+4*s,
+      y+44*s
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+  }
+}  display:flex;
   justify-content:space-between;
   padding:0 20px;
   z-index:8;
