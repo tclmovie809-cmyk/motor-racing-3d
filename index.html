@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Motor Racing 3D</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  user-select: none;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #87ceeb;
+  font-family: Arial, sans-serif;
+}
+
+#game {
+  width: 100vw;
+  height: 100vh;
+}
+
+#speed {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px black;
+  z-index: 10;
+}
+
+.controls {
+  position: fixed;
+  bottom: 25px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 25px;
+  z-index: 20;
+}
+
+button {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid white;
+  background: rgba(0,0,0,0.45);
+  color: white;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+#gas {
+  background: rgba(0,150,0,0.65);
+}
+</style>
+</head>
+
+<body>
+
+<div id="game"></div>
+<div id="speed">SPEED: 0</div>
+
+<div class="controls">
+  <div>
+    <button id="left">◀</button>
+    <button id="right">▶</button>
+  </div>
+
+  <button id="gas">▲</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+
+const scene = new THREE.Scene();
+
+scene.background = new THREE.Color(0x87ceeb);
+
+const camera = new THREE.PerspectiveCamera(
+  70,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+
+const renderer = new THREE.WebGLRenderer({
+  antialias: true
+});
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+
+document.getElementById("game").appendChild(renderer.domElement);
+
+
+// LIGHT
+const light = new THREE.DirectionalLight(0xffffff, 2);
+light.position.set(5,10,5);
+scene.add(light);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+
+// ROAD
+const roadGeometry = new THREE.PlaneGeometry(12, 1000);
+const roadMaterial = new THREE.MeshStandardMaterial({
+  color: 0x333333
+});
+
+const road = new THREE.Mesh(
+  roadGeometry,
+  roadMaterial
+);
+
+road.rotation.x = -Math.PI / 2;
+road.position.y = 0;
+scene.add(road);
+
+
+// GRASS
+const grassGeometry = new THREE.PlaneGeometry(100, 1000);
+const grassMaterial = new THREE.MeshStandardMaterial({
+  color: 0x228B22
+});
+
+const grass = new THREE.Mesh(
+  grassGeometry,
+  grassMaterial
+);
+
+grass.rotation.x = -Math.PI / 2;
+grass.position.y = -0.02;
+scene.add(grass);
+
+
+// ROAD LINES
+for(let z = -500; z < 500; z += 10){
+
+  const lineGeometry = new THREE.BoxGeometry(0.25,0.02,5);
+
+  const lineMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffffff
+  });
+
+  const line = new THREE.Mesh(
+    lineGeometry,
+    lineMaterial
+  );
+
+  line.position.set(0,0.03,z);
+
+  scene.add(line);
+}
+
+
+// MOTORCYCLE
+const bike = new THREE.Group();
+
+
+// BODY
+const bodyGeometry = new THREE.BoxGeometry(1,0.5,2);
+
+const bodyMaterial = new THREE.MeshStandardMaterial({
+  color: 0xff0000
+});
+
+const body = new THREE.Mesh(
+  bodyGeometry,
+  bodyMaterial
+);
+
+body.position.y = 0.7;
+
+bike.add(body);
+
+
+// SEAT
+const seatGeometry = new THREE.BoxGeometry(0.65,0.2,0.8);
+
+const seatMaterial = new THREE.MeshStandardMaterial({
+  color: 0x111111
+});
+
+const seat = new THREE.Mesh(
+  seatGeometry,
+  seatMaterial
+);
+
+seat.position.set(0,1.05,0.2);
+
+bike.add(seat);
+
+
+// WHEELS
+function createWheel(z){
+
+  const geometry = new THREE.CylinderGeometry(
+    0.45,
+    0.45,
+    0.25,
+    32
+  );
+
+  const material = new THREE.MeshStandardMaterial({
+    color: 0x111111
+  });
+
+  const wheel = new THREE.Mesh(
+    geometry,
+    material
+  );
+
+  wheel.rotation.z = Math.PI / 2;
+  wheel.position.set(0,0.45,z);
+
+  bike.add(wheel);
+}
+
+createWheel(0.8);
+createWheel(-0.8);
+
+
+// HANDLEBAR
+const handleGeometry = new THREE.BoxGeometry(
+  1.2,
+  0.12,
+  0.12
+);
+
+const handleMaterial = new THREE.MeshStandardMaterial({
+  color: 0x222222
+});
+
+const handle = new THREE.Mesh(
+  handleGeometry,
+  handleMaterial
+);
+
+handle.position.set(0,1.25,-0.8);
+
+bike.add(handle);
+
+
+bike.position.set(0,0,5);
+
+scene.add(bike);
+
+
+// CAMERA
+camera.position.set(0,4,10);
+camera.lookAt(bike.position);
+
+
+// GAME VARIABLES
+let speed = 0;
+let acceleration = 0;
+let steering = 0;
+
+
+// BUTTONS
+const left = document.getElementById("left");
+const right = document.getElementById("right");
+const gas = document.getElementById("gas");
+
+
+left.addEventListener("touchstart", e => {
+  e.preventDefault();
+  steering = -1;
+});
+
+left.addEventListener("touchend", e => {
+  e.preventDefault();
+  steering = 0;
+});
+
+
+right.addEventListener("touchstart", e => {
+  e.preventDefault();
+  steering = 1;
+});
+
+right.addEventListener("touchend", e => {
+  e.preventDefault();
+  steering = 0;
+});
+
+
+gas.addEventListener("touchstart", e => {
+  e.preventDefault();
+  acceleration = 0.02;
+});
+
+gas.addEventListener("touchend", e => {
+  e.preventDefault();
+  acceleration = 0;
+});
+
+
+// KEYBOARD
+document.addEventListener("keydown", e => {
+
+  if(e.key === "ArrowLeft")
+    steering = -1;
+
+  if(e.key === "ArrowRight")
+    steering = 1;
+
+  if(e.key === "ArrowUp")
+    acceleration = 0.02;
+});
+
+
+document.addEventListener("keyup", e => {
+
+  if(e.key === "ArrowLeft" || e.key === "ArrowRight")
+    steering = 0;
+
+  if(e.key === "ArrowUp")
+    acceleration = 0;
+});
+
+
+// GAME LOOP
+function animate(){
+
+  requestAnimationFrame(animate);
+
+  speed += acceleration;
+
+  speed *= 0.98;
+
+  if(speed > 1)
+    speed = 1;
+
+  if(speed < 0)
+    speed = 0;
+
+
+  bike.position.z -= speed;
+
+
+  bike.position.x += steering * speed * 0.15;
+
+
+  // Keep bike on road
+  if(bike.position.x > 5)
+    bike.position.x = 5;
+
+  if(bike.position.x < -5)
+    bike.position.x = -5;
+
+
+  // Lean motorcycle
+  bike.rotation.z = -steering * 0.25;
+
+
+  // Camera follows
+  camera.position.x +=
+    (bike.position.x - camera.position.x) * 0.08;
+
+  camera.position.z =
+    bike.position.z + 8;
+
+  camera.lookAt(
+    bike.position.x,
+    0.7,
+    bike.position.z - 8
+  );
+
+
+  document.getElementById("speed").innerText =
+    "SPEED: " + Math.floor(speed * 200);
+
+
+  renderer.render(scene,camera);
+}
+
+
+animate();
+
+
+// RESIZE
+window.addEventListener("resize", () => {
+
+  camera.aspect =
+    window.innerWidth / window.innerHeight;
+
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+  );
+
+});
+
+</script>
+
+</body>
+</html>
