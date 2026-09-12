@@ -1,4 +1,1352 @@
-function drawBike(){
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>JX RACING</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#050608;
+  font-family:Arial,Helvetica,sans-serif;
+  touch-action:none;
+}
+canvas{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.screen{
+  position:fixed;
+  inset:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  color:white;
+  text-align:center;
+  background:
+    radial-gradient(circle at 50% 40%,rgba(255,35,10,.22),transparent 38%),
+    linear-gradient(135deg,#030406,#190607,#050608);
+}
+
+.logo{
+  font-size:clamp(65px,16vw,145px);
+  font-weight:1000;
+  font-style:italic;
+  line-height:.8;
+  letter-spacing:-8px;
+  color:#ff2119;
+  text-shadow:
+    0 5px 0 #8c0000,
+    0 0 20px #ff1700,
+    0 0 55px rgba(255,20,0,.5);
+}
+
+.racing{
+  margin-top:12px;
+  font-size:clamp(38px,9vw,78px);
+  font-weight:1000;
+  font-style:italic;
+  letter-spacing:4px;
+  text-shadow:0 4px 0 #555;
+}
+
+.tag{
+  margin-top:14px;
+  margin-bottom:42px;
+  font-size:clamp(12px,3vw,21px);
+  font-weight:bold;
+  letter-spacing:6px;
+  color:#ddd;
+}
+
+.mainButton{
+  min-width:280px;
+  padding:18px 32px;
+  border:2px solid #ff8b32;
+  border-radius:15px;
+  color:white;
+  background:linear-gradient(#ff4935,#d70000);
+  font-size:24px;
+  font-weight:1000;
+  font-style:italic;
+  box-shadow:
+    0 0 15px rgba(255,40,10,.8),
+    0 0 35px rgba(255,30,0,.35),
+    inset 0 2px 5px rgba(255,255,255,.45);
+}
+
+.mainButton:active{
+  transform:scale(.95);
+}
+
+.smallText{
+  margin-top:18px;
+  color:#888;
+  font-size:11px;
+  letter-spacing:2px;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* HUD */
+#hud{
+  position:fixed;
+  left:10px;
+  right:10px;
+  top:10px;
+  z-index:8;
+  display:flex;
+  justify-content:space-between;
+  pointer-events:none;
+}
+
+.hudBox{
+  min-width:125px;
+  padding:8px 13px;
+  color:white;
+  background:rgba(4,8,12,.75);
+  border-left:4px solid #0aaeff;
+  box-shadow:0 4px 15px rgba(0,0,0,.45);
+}
+
+.hudBox.right{
+  text-align:right;
+  border-left:0;
+  border-right:4px solid #0aaeff;
+}
+
+.hudLabel{
+  font-size:11px;
+  font-weight:bold;
+  font-style:italic;
+}
+
+.hudValue{
+  font-size:25px;
+  font-weight:1000;
+  font-style:italic;
+  color:#ffd400;
+}
+
+#boost{
+  position:fixed;
+  top:92px;
+  right:14px;
+  width:min(220px,42vw);
+  z-index:8;
+  color:white;
+}
+
+.boostTitle{
+  text-align:right;
+  font-size:12px;
+  font-weight:bold;
+  margin-bottom:4px;
+}
+
+.boostBar{
+  height:15px;
+  border:2px solid #27323b;
+  background:#090b0d;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+#boostFill{
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg,#008fff,#6eeaff);
+  box-shadow:0 0 15px #00bfff;
+}
+
+#speedUp{
+  position:fixed;
+  z-index:9;
+  left:50%;
+  top:115px;
+  transform:translateX(-50%) skew(-10deg);
+  color:white;
+  font-size:clamp(20px,6vw,45px);
+  font-weight:1000;
+  font-style:italic;
+  text-shadow:
+    0 0 18px #00baff,
+    0 3px 5px #000;
+  opacity:0;
+}
+
+/* pause */
+#pause{
+  position:fixed;
+  right:12px;
+  top:12px;
+  z-index:12;
+  width:47px;
+  height:47px;
+  border:2px solid #777;
+  border-radius:10px;
+  background:rgba(10,12,15,.85);
+  color:white;
+  font-size:22px;
+}
+
+/* controls */
+#controls{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:18px;
+  z-index:10;
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  padding:0 18px;
+  pointer-events:none;
+}
+
+.control{
+  width:76px;
+  height:76px;
+  border-radius:50%;
+  border:3px solid #777;
+  background:radial-gradient(circle,#30353a,#08090a);
+  color:white;
+  font-size:38px;
+  box-shadow:
+    0 5px 15px #000,
+    inset 0 0 15px #555;
+  pointer-events:auto;
+}
+
+.control:active{
+  transform:scale(.9);
+}
+
+#boostButton{
+  width:92px;
+  height:92px;
+  border-color:#00baff;
+  color:#53ddff;
+  font-size:16px;
+  box-shadow:
+    0 0 25px rgba(0,180,255,.4),
+    inset 0 0 20px #12465e;
+}
+
+#boostButton b{
+  display:block;
+  font-size:38px;
+  line-height:35px;
+}
+
+/* crash screen */
+#gameOver{
+  background:
+    radial-gradient(circle at 50% 45%,rgba(120,0,0,.5),transparent 48%),
+    linear-gradient(#120304,#020304);
+}
+
+.crash{
+  color:#ff2418;
+  font-size:clamp(70px,17vw,145px);
+  font-weight:1000;
+  font-style:italic;
+  text-shadow:
+    0 5px 0 #780000,
+    0 0 35px red;
+  transform:skew(-8deg);
+}
+
+.overText{
+  font-size:clamp(25px,6vw,52px);
+  font-weight:1000;
+  font-style:italic;
+  margin-bottom:22px;
+}
+
+.result{
+  color:#bbb;
+  font-size:19px;
+  line-height:1.9;
+  margin-bottom:20px;
+}
+
+.result strong{
+  color:#ffd000;
+  font-size:27px;
+}
+
+@media(max-width:600px){
+  .hudBox{
+    min-width:105px;
+    padding:6px 9px;
+  }
+
+  .hudValue{
+    font-size:21px;
+  }
+
+  #controls{
+    bottom:15px;
+    padding:0 13px;
+  }
+
+  .control{
+    width:68px;
+    height:68px;
+  }
+
+  #boostButton{
+    width:84px;
+    height:84px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<!-- MENU -->
+<div id="menu" class="screen">
+  <div class="logo">JX</div>
+  <div class="racing">RACING</div>
+  <div class="tag">ROAD • SPEED • RACE</div>
+
+  <button class="mainButton" id="start">
+    START RACE&nbsp;&nbsp;»
+  </button>
+
+  <div class="smallText">
+    MOBILE • ARROW KEYS • BOOST
+  </div>
+</div>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+
+  <div class="hudBox">
+    <div class="hudLabel">SCORE</div>
+    <div class="hudValue" id="score">0</div>
+
+    <div class="hudLabel">BEST</div>
+    <div class="hudValue" id="best">0</div>
+  </div>
+
+  <div class="hudBox right">
+    <div class="hudLabel">SPEED</div>
+    <div class="hudValue">
+      <span id="speed">0</span> km/h
+    </div>
+  </div>
+
+</div>
+
+<div id="boost" class="hidden">
+  <div class="boostTitle">⚡ BOOST</div>
+  <div class="boostBar">
+    <div id="boostFill"></div>
+  </div>
+</div>
+
+<div id="speedUp">⚡ SPEED UP! ⚡</div>
+
+<button id="pause" class="hidden">Ⅱ</button>
+
+<!-- CONTROLS -->
+<div id="controls" class="hidden">
+
+  <button class="control" id="left">
+    ◀
+  </button>
+
+  <button class="control" id="boostButton">
+    <b>ϟ</b>
+    BOOST
+  </button>
+
+  <button class="control" id="right">
+    ▶
+  </button>
+
+</div>
+
+<!-- GAME OVER -->
+<div id="gameOver" class="screen hidden">
+
+  <div class="crash">CRASH!</div>
+
+  <div class="overText">
+    RACE OVER
+  </div>
+
+  <div class="result">
+    SCORE:
+    <strong id="finalScore">0</strong>
+    <br>
+
+    BEST:
+    <strong id="finalBest">0</strong>
+  </div>
+
+  <button class="mainButton" id="again">
+    ↻ &nbsp;RACE AGAIN
+  </button>
+
+</div>
+
+
+<script>
+"use strict";
+
+/* =====================================================
+   JX RACING
+   Pure HTML + CSS + JavaScript
+   GitHub Pages compatible
+===================================================== */
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const menu = document.getElementById("menu");
+const gameOver = document.getElementById("gameOver");
+const hud = document.getElementById("hud");
+const controls = document.getElementById("controls");
+const boostBox = document.getElementById("boost");
+const pauseButton = document.getElementById("pause");
+
+const scoreText = document.getElementById("score");
+const bestText = document.getElementById("best");
+const finalScore = document.getElementById("finalScore");
+const finalBest = document.getElementById("finalBest");
+const speedText = document.getElementById("speed");
+const boostFill = document.getElementById("boostFill");
+const speedUpText = document.getElementById("speedUp");
+
+let W = window.innerWidth;
+let H = window.innerHeight;
+let DPR = Math.min(window.devicePixelRatio || 1,2);
+
+let playing = false;
+let paused = false;
+
+let score = 0;
+let best = Number(localStorage.getItem("jxRacingBest") || 0);
+
+let speed = 80;
+let boost = 100;
+
+let playerLane = 0;
+let targetLane = 0;
+
+let roadMove = 0;
+let spawnTimer = 0;
+let sceneryTimer = 0;
+let speedEventTimer = 0;
+
+let traffic = [];
+let scenery = [];
+
+let boostHeld = false;
+
+const MAX_SPEED = 210;
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+function resize(){
+
+  W = window.innerWidth;
+  H = window.innerHeight;
+  DPR = Math.min(window.devicePixelRatio || 1,2);
+
+  canvas.width = Math.floor(W * DPR);
+  canvas.height = Math.floor(H * DPR);
+
+  canvas.style.width = W + "px";
+  canvas.style.height = H + "px";
+
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+
+window.addEventListener("resize",resize);
+resize();
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+function random(min,max){
+  return min + Math.random() * (max-min);
+}
+
+function clamp(value,min,max){
+  return Math.max(min,Math.min(max,value));
+}
+
+function lerp(a,b,t){
+  return a + (b-a)*t;
+}
+
+
+/* =====================================================
+   ROAD PERSPECTIVE
+===================================================== */
+
+function roadY(z){
+  return H * .43 + Math.pow(z,1.65) * H * .64;
+}
+
+function roadHalf(z){
+  return lerp(
+    W*.045,
+    W*.48,
+    Math.pow(z,1.12)
+  );
+}
+
+function roadX(lane,z){
+  return W/2 + lane * roadHalf(z) * .62;
+}
+
+
+/* =====================================================
+   SKY
+===================================================== */
+
+function drawSky(){
+
+  const gradient = ctx.createLinearGradient(
+    0,0,0,H*.55
+  );
+
+  gradient.addColorStop(0,"#126eb1");
+  gradient.addColorStop(.55,"#61c7f4");
+  gradient.addColorStop(1,"#d9f4ff");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0,0,W,H);
+
+  /* sun */
+
+  const sx = W*.79;
+  const sy = H*.10;
+
+  const glow = ctx.createRadialGradient(
+    sx,sy,5,
+    sx,sy,140
+  );
+
+  glow.addColorStop(0,"rgba(255,255,235,.95)");
+  glow.addColorStop(1,"rgba(255,255,220,0)");
+
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(sx,sy,140,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle="#fff4a8";
+  ctx.beginPath();
+  ctx.arc(sx,sy,23,0,Math.PI*2);
+  ctx.fill();
+
+}
+
+
+/* =====================================================
+   MOUNTAINS
+===================================================== */
+
+function mountainLayer(base,height,color){
+
+  ctx.fillStyle=color;
+  ctx.beginPath();
+
+  ctx.moveTo(0,base);
+
+  for(let x=-80;x<=W+100;x+=55){
+
+    const wave =
+      Math.sin(x*.018) *
+      height*.25;
+
+    const y =
+      base -
+      random(height*.35,height) +
+      wave;
+
+    ctx.lineTo(x,y);
+  }
+
+  ctx.lineTo(W,H*.55);
+  ctx.lineTo(0,H*.55);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawMountains(){
+
+  mountainLayer(
+    H*.43,
+    H*.17,
+    "#6088a0"
+  );
+
+  mountainLayer(
+    H*.45,
+    H*.12,
+    "#3c6979"
+  );
+
+}
+
+
+/* =====================================================
+   GROUND
+===================================================== */
+
+function drawGround(){
+
+  const grass = ctx.createLinearGradient(
+    0,H*.42,0,H
+  );
+
+  grass.addColorStop(0,"#58b63d");
+  grass.addColorStop(1,"#17451d");
+
+  ctx.fillStyle=grass;
+  ctx.fillRect(0,H*.42,W,H*.58);
+}
+
+
+/* =====================================================
+   ROAD
+===================================================== */
+
+function drawRoad(){
+
+  const horizon = H*.43;
+
+  /* road */
+
+  ctx.fillStyle="#20262b";
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    W/2-W*.045,
+    horizon
+  );
+
+  ctx.lineTo(
+    W/2+W*.045,
+    horizon
+  );
+
+  ctx.lineTo(
+    W/2+W*.50,
+    H
+  );
+
+  ctx.lineTo(
+    W/2-W*.50,
+    H
+  );
+
+  ctx.closePath();
+  ctx.fill();
+
+
+  /* shoulders */
+
+  ctx.strokeStyle="#eee";
+  ctx.lineWidth=5;
+
+  ctx.beginPath();
+  ctx.moveTo(
+    W/2-W*.045,
+    horizon
+  );
+  ctx.lineTo(
+    W/2-W*.50,
+    H
+  );
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(
+    W/2+W*.045,
+    horizon
+  );
+  ctx.lineTo(
+    W/2+W*.50,
+    H
+  );
+  ctx.stroke();
+
+
+  /* lane markings */
+
+  const offset =
+    (roadMove*.75)%1;
+
+  for(let i=0;i<25;i++){
+
+    const z =
+      (i/25 + offset/25)%1;
+
+    const y = roadY(z);
+    const half = roadHalf(z);
+
+    const length =
+      lerp(4,48,z);
+
+    const width =
+      lerp(1,5,z);
+
+    ctx.strokeStyle=
+      "rgba(245,245,245,.9)";
+
+    ctx.lineWidth=width;
+
+    /* left divider */
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      W/2-half*.22,
+      y
+    );
+
+    ctx.lineTo(
+      W/2-half*.22,
+      y+length
+    );
+
+    ctx.stroke();
+
+
+    /* right divider */
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      W/2+half*.22,
+      y
+    );
+
+    ctx.lineTo(
+      W/2+half*.22,
+      y+length
+    );
+
+    ctx.stroke();
+  }
+
+
+  /* road shine */
+
+  for(let i=0;i<35;i++){
+
+    const z =
+      (i/35 + roadMove*.4)%1;
+
+    const y=roadY(z);
+    const half=roadHalf(z);
+
+    ctx.strokeStyle=
+      "rgba(255,255,255,.035)";
+
+    ctx.lineWidth=1;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      W/2-half*.8,
+      y
+    );
+
+    ctx.lineTo(
+      W/2+half*.8,
+      y
+    );
+
+    ctx.stroke();
+  }
+}
+
+
+/* =====================================================
+   TREES
+===================================================== */
+
+function drawTree(x,y,size){
+
+  ctx.save();
+
+  ctx.translate(x,y);
+
+  /* trunk */
+
+  ctx.fillStyle="#56351e";
+  ctx.fillRect(
+    -size*.06,
+    0,
+    size*.12,
+    size*.65
+  );
+
+  /* leaves */
+
+  ctx.fillStyle="#165624";
+
+  for(let i=0;i<5;i++){
+
+    ctx.beginPath();
+
+    ctx.arc(
+      random(-size*.28,size*.28),
+      random(-size*.65,-size*.15),
+      size*random(.20,.34),
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+  }
+
+  ctx.fillStyle="#2d8430";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    -size*.43,
+    size*.40,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.restore();
+}
+
+
+/* =====================================================
+   HOUSES
+===================================================== */
+
+function drawHouse(x,y,size){
+
+  ctx.save();
+
+  ctx.translate(x,y);
+
+  ctx.fillStyle="#eee0b7";
+
+  ctx.fillRect(
+    -size*.45,
+    -size*.55,
+    size*.9,
+    size*.55
+  );
+
+  ctx.fillStyle="#a43b28";
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    -size*.58,
+    -size*.55
+  );
+
+  ctx.lineTo(
+    0,
+    -size
+  );
+
+  ctx.lineTo(
+    size*.58,
+    -size*.55
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+  ctx.fillStyle="#36566b";
+
+  ctx.fillRect(
+    -size*.09,
+    -size*.35,
+    size*.18,
+    size*.35
+  );
+
+  ctx.restore();
+}
+
+
+/* =====================================================
+   SIGNS
+===================================================== */
+
+const signs=[
+  "MAKILALA",
+  "BULATUKAN",
+  "NEW ISRAEL",
+  "BASMAYOR / MIRAS STREET",
+  "ROCO HOUSE"
+];
+
+function drawSign(x,y,size,text){
+
+  ctx.save();
+  ctx.translate(x,y);
+
+  /* pole */
+
+  ctx.fillStyle="#555";
+
+  ctx.fillRect(
+    -size*.025,
+    0,
+    size*.05,
+    size*.8
+  );
+
+  const width =
+    Math.min(size*2.8,W*.30);
+
+  let signColor="#23734c";
+
+  if(text==="ROCO HOUSE"){
+    signColor="#e5e5dc";
+  }
+
+  if(text==="BASMAYOR / MIRAS STREET"){
+    signColor="#2466a2";
+  }
+
+  ctx.fillStyle=signColor;
+
+  ctx.fillRect(
+    -width/2,
+    -size*.45,
+    width,
+    size*.52
+  );
+
+  ctx.strokeStyle="#e7eee7";
+  ctx.lineWidth=Math.max(1,size*.025);
+
+  ctx.strokeRect(
+    -width/2,
+    -size*.45,
+    width,
+    size*.52
+  );
+
+  ctx.fillStyle=
+    text==="ROCO HOUSE"
+      ? "#17364a"
+      : "#fff";
+
+  ctx.font=
+    "bold "+Math.max(7,size*.17)+"px Arial";
+
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+
+  ctx.fillText(
+    text,
+    0,
+    -size*.19
+  );
+
+  ctx.restore();
+}
+
+
+/* =====================================================
+   SCENERY
+===================================================== */
+
+function spawnScenery(){
+
+  const side =
+    Math.random()<.5 ? -1 : 1;
+
+  const z=random(.02,.65);
+
+  const randomSign =
+    Math.random()<.18
+      ? signs[
+          Math.floor(
+            Math.random()*signs.length
+          )
+        ]
+      : null;
+
+  scenery.push({
+    side:side,
+    z:z,
+    type:Math.random(),
+    sign:randomSign
+  });
+}
+
+function updateScenery(dt){
+
+  sceneryTimer-=dt;
+
+  if(sceneryTimer<=0){
+
+    sceneryTimer=random(.25,.55);
+
+    spawnScenery();
+    spawnScenery();
+  }
+
+  for(const item of scenery){
+
+    item.z +=
+      dt *
+      (.12 + speed/MAX_SPEED*.48);
+  }
+
+  scenery=
+    scenery.filter(
+      item=>item.z<1.1
+    );
+}
+
+function drawScenery(){
+
+  const sorted =
+    scenery.slice().sort(
+      (a,b)=>a.z-b.z
+    );
+
+  for(const item of sorted){
+
+    const y=roadY(item.z);
+    const half=roadHalf(item.z);
+
+    const x=
+      W/2 +
+      item.side *
+      (half+lerp(15,120,item.z));
+
+    const size=
+      lerp(10,72,item.z);
+
+    if(item.sign){
+
+      drawSign(
+        x,
+        y,
+        size,
+        item.sign
+      );
+
+    }else if(item.type<.65){
+
+      drawTree(
+        x,
+        y,
+        size
+      );
+
+    }else{
+
+      drawHouse(
+        x,
+        y,
+        size
+      );
+    }
+  }
+}
+
+
+/* =====================================================
+   TRAFFIC
+===================================================== */
+
+function spawnTraffic(){
+
+  const lanes=[
+    -.62,
+    -.31,
+    0,
+    .31,
+    .62
+  ];
+
+  const lane =
+    lanes[
+      Math.floor(
+        Math.random()*lanes.length
+      )
+    ];
+
+  const occupied =
+    traffic.some(
+      car =>
+        Math.abs(car.lane-lane)<.12 &&
+        car.z<.25
+    );
+
+  if(occupied)return;
+
+  const colors=[
+    "#eeeeee",
+    "#c91f1f",
+    "#1e252b",
+    "#e1a21a",
+    "#146cb0",
+    "#f4f4f4"
+  ];
+
+  traffic.push({
+
+    lane:lane,
+
+    z:-.08,
+
+    type:
+      Math.random()<.18
+        ? "truck"
+        : "car",
+
+    color:
+      colors[
+        Math.floor(
+          Math.random()*colors.length
+        )
+      ],
+
+    speed:
+      random(.72,1.05)
+  });
+}
+
+
+/* =====================================================
+   TRAFFIC DRAW
+===================================================== */
+
+function drawTraffic(car){
+
+  const z=clamp(car.z,0,1);
+
+  const x=roadX(
+    car.lane,
+    z
+  );
+
+  const y=roadY(z);
+
+  let size=
+    lerp(8,62,z);
+
+  if(car.type==="truck"){
+    size*=1.3;
+  }
+
+  ctx.save();
+
+  ctx.translate(
+    x,
+    y-size*.30
+  );
+
+  /* shadow */
+
+  ctx.fillStyle=
+    "rgba(0,0,0,.35)";
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    0,
+    size*.62,
+    size*.70,
+    size*.20,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  if(car.type==="truck"){
+
+    ctx.fillStyle=car.color;
+
+    ctx.fillRect(
+      -size*.55,
+      -size*.68,
+      size*1.1,
+      size*1.35
+    );
+
+    ctx.fillStyle="#9cbcca";
+
+    ctx.fillRect(
+      -size*.39,
+      -size*.56,
+      size*.78,
+      size*.38
+    );
+
+    ctx.fillStyle="#252525";
+
+    ctx.fillRect(
+      -size*.55,
+      size*.48,
+      size*1.1,
+      size*.14
+    );
+
+  }else{
+
+    ctx.fillStyle=car.color;
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+      -size*.55,
+      -size*.48,
+      size*1.1,
+      size*.95,
+      size*.17
+    );
+
+    ctx.fill();
+
+    /* windows */
+
+    ctx.fillStyle="#18303e";
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+      -size*.37,
+      -size*.37,
+      size*.74,
+      size*.30,
+      size*.06
+    );
+
+    ctx.fill();
+
+    /* lights */
+
+    ctx.fillStyle="#fff4b2";
+
+    ctx.fillRect(
+      -size*.47,
+      -size*.02,
+      size*.11,
+      size*.09
+    );
+
+    ctx.fillRect(
+      size*.36,
+      -size*.02,
+      size*.11,
+      size*.09
+    );
+
+    ctx.fillStyle="#d91515";
+
+    ctx.fillRect(
+      -size*.47,
+      size*.27,
+      size*.11,
+      size*.09
+    );
+
+    ctx.fillRect(
+      size*.36,
+      size*.27,
+      size*.11,
+      size*.09
+    );
+  }
+
+  ctx.restore();
+}
+
+
+/* =====================================================
+   PLAYER MOTORCYCLE
+===================================================== */
+
+function drawPlayer(){
+
+  const x=
+    W/2 +
+    playerLane*W*.14;
+
+  const base=H*.91;
+
+  const scale=
+    Math.min(W,H)/650;
+
+  ctx.save();
+
+  ctx.translate(x,base);
+  ctx.scale(scale,scale);
+
+
+  /* shadow */
+
+  ctx.fillStyle=
+    "rgba(0,0,0,.55)";
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    0,
+    17,
+    95,
+    24,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  /* rear tire */
+
+  ctx.fillStyle="#0708function drawBike(){
 
   const x = playerX;
   const y = H * 0.78;
